@@ -3,10 +3,11 @@
   "version": "4.1.0",
   "adonis-version": "4.1.0",
   "description": "Adonisjs boilerplate for API server with pre-configured JWT",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "test": "node ace test"
+    "start": "ENV_SILENT=true node server.js",
+    "test": "node ace test",
+    "development": "ENV_PATH=.env.development TZ=utc adonis serve --dev"
   },
   "keywords": [
     "adonisjs",
