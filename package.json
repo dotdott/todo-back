@@ -7,7 +7,7 @@
   "scripts": {
     "start": "ENV_SILENT=true node server.js",
     "test": "node ace test",
-    "development": "ENV_PATH=.env.development TZ=utc adonis serve --dev"
+    "development": "ENV_PATH=.env.development.local TZ=utc adonis serve --dev"
   },
   "keywords": [
     "adonisjs",
