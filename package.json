@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node ace test"
+    "test": "node ace test",
+    "development": "ENV_PATH=.env.development TZ=utc adonis serve --dev"
   },
   "keywords": [
     "adonisjs",
