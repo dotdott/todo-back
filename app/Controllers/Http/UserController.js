@@ -16,7 +16,12 @@ class UserController {
     try {
       const { token } = await auth.attempt(email, password);
 
-      return response.status(200).send({ token });
+      const user = await User.query()
+        .where("email", email)
+        .setHidden(["password"])
+        .fetch();
+
+      return response.status(200).send({ user, token });
     } catch (err) {
       return response.status(404).send("Email/senha não conferem");
     }
