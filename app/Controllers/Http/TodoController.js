@@ -4,11 +4,25 @@ const Todo = use("App/Models/Todo");
 const { validate } = use("Validator");
 
 class TodoController {
-  async index({ auth }) {
-    const { id } = auth.user;
-    const todos = await Todo.query().where("user_id", id).fetch();
+  async index({ request, response }) {
+    try {
+      const { user_id } = request.only(["user_id"]);
 
-    return todos;
+      const numberedID = Number(user_id);
+      if (numberedID && numberedID > 0) {
+        const todos = await Todo.query().where("user_id", user_id).fetch();
+
+        return todos;
+      } else {
+        return response
+          .status(400)
+          .send({ error: "ID de usuário é obrigatório!" });
+      }
+    } catch (err) {
+      return response
+        .status(400)
+        .send({ error: "ID de usuário é obrigatório!" });
+    }
   }
 
   async store({ request, response, auth }) {

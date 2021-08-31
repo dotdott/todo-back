@@ -23,12 +23,12 @@ class UserController {
 
       return response.status(200).send({ user, token });
     } catch (err) {
-      return response.status(404).send("Email/senha não conferem");
+      return response.status(400).send({ error: "Email/senha não conferem" });
     }
   }
 
-  async store({ request, response, params }) {
-    const { username, email } = request.all();
+  async store({ request, response, auth }) {
+    const { username, email, password } = request.all();
 
     const rules = {
       email: "required|email|unique:users,email",
@@ -50,7 +50,7 @@ class UserController {
     if (validation.fails()) {
       const message = await validation.messages();
 
-      return response.status(400).send({ Erro: message[0].message });
+      return response.status(400).send({ error: message[0].message });
     }
 
     try {
@@ -58,17 +58,22 @@ class UserController {
         const alreadyRegistered = await User.findBy("email", email);
 
         if (alreadyRegistered) {
-          return response.status(400).send({ Error: "Email já cadastrado" });
+          return response.status(400).send({ error: "Email já cadastrado" });
         }
         const data = request.only(["username", "email", "password"]);
-        const user = User.create(data);
+        const user = await User.create(data);
+        const { token } = await auth.attempt(email, password);
 
-        return response
-          .status(200)
-          .send({ Sucesso: "Usuário cadastrado com sucesso!" });
+        const formatedUserData = {
+          username: user.username,
+          email: user.email,
+          id: user.id,
+        };
+
+        return response.status(200).send({ user: formatedUserData, token });
       }
     } catch (err) {
-      response.status(400).send({ Error: "Registros invalidos" });
+      response.status(400).send({ error: "Registros invalidos" });
     }
 
     return response.status(200).send({ username });
