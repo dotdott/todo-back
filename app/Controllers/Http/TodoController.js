@@ -6,11 +6,22 @@ const { validate } = use("Validator");
 class TodoController {
   async index({ request, response }) {
     try {
-      const { user_id } = request.only(["user_id"]);
+      const { user_id, has_completed } = request.only([
+        "user_id",
+        "has_completed",
+      ]);
 
       const numberedID = Number(user_id);
       if (numberedID && numberedID > 0) {
-        const todos = await Todo.query().where("user_id", user_id).fetch();
+        let todos;
+
+        if (has_completed) {
+          todos = await Todo.query().where({ user_id, has_completed }).fetch();
+        }
+
+        if (!has_completed) {
+          todos = await Todo.query().where({ user_id }).fetch();
+        }
 
         return todos;
       } else {
@@ -28,7 +39,12 @@ class TodoController {
   async store({ request, response, auth }) {
     const { id } = auth.user;
 
-    let task = request.only(["task", "description", "has_completed"]);
+    let task = request.only([
+      "task",
+      "description",
+      "has_completed",
+      "finished_at",
+    ]);
 
     const rules = {
       task: "required",
@@ -46,7 +62,7 @@ class TodoController {
     if (validation.fails()) {
       const message = await validation.messages();
 
-      return response.status(400).send({ Erro: message[0].message });
+      return response.status(400).send({ error: message[0].message });
     }
 
     if (!task.has_completed) {
@@ -62,24 +78,36 @@ class TodoController {
   }
 
   async update({ request, response, params }) {
-    const task = request.only(["has_completed"]);
+    const { has_completed, finished_at, task, description } = request.all();
     const taskId = params.id;
 
-    if (!task.has_completed) {
+    if (!has_completed) {
       return response.status(400).send({
-        erro: "O campo has_completed é obrigatórios para uma alteração",
+        error: "O campo has_completed é obrigatório para uma alteração",
       });
     }
 
     if (!taskId) {
       return response.status(401).send({
-        erro: "O id da tarefa é obrigatório!",
+        error: "O id da tarefa é obrigatório!",
       });
     }
 
-    await Todo.query()
-      .where("id", taskId)
-      .update({ has_completed: task.has_completed });
+    const toQuery = { has_completed };
+
+    if (finished_at) {
+      Object.assign(toQuery, { finished_at });
+    }
+
+    if (task) {
+      Object.assign(toQuery, { task });
+    }
+
+    if (description) {
+      Object.assign(toQuery, { description });
+    }
+
+    await Todo.query().where("id", taskId).update(toQuery);
 
     const thisTodo = await Todo.query().where("id", taskId).fetch();
 
