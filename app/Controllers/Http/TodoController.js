@@ -2,6 +2,7 @@
 
 const Todo = use("App/Models/Todo");
 const { validate } = use("Validator");
+const Database = use("Database");
 
 class TodoController {
   async index({ request, response }) {
@@ -112,6 +113,37 @@ class TodoController {
     const thisTodo = await Todo.query().where("id", taskId).fetch();
 
     return thisTodo;
+  }
+
+  async delete({ request, response, auth }) {
+    const { id } = auth.user;
+    const { todo_id } = request.only(["todo_id"]);
+
+    if (!todo_id) {
+      return response
+        .status(400)
+        .send({ error: "O parametro todo_id é obrigatório." });
+    }
+
+    const thisTodo = await Database.table("todos").where("id", todo_id);
+
+    if (!thisTodo) {
+      return response
+        .status(400)
+        .send({ error: "A tarefa com este id já foi deletada ou não existe." });
+    }
+
+    if (thisTodo[0].user_id === id) {
+      const deletedTask = await Database.table("todos")
+        .where("id", todo_id)
+        .delete();
+
+      return response.status(200).send("Tarefa deletada.");
+    } else {
+      return response
+        .status(403)
+        .send({ error: "Somente o usuário dono da tarefa pode deleta-la." });
+    }
   }
 }
 

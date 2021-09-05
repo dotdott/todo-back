@@ -24,3 +24,4 @@ Route.post("/register", "UserController.store");
 Route.get("/todo", "TodoController.index").middleware("auth");
 Route.post("/todo", "TodoController.store").middleware("auth");
 Route.put("/todo/:id", "TodoController.update").middleware("auth");
+Route.post("/todo/delete", "TodoController.delete").middleware("auth");
