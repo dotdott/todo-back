@@ -1,28 +1,11 @@
-# Adonis API application
+<h1>Work in progress...</h1>
 
-This is the boilerplate for creating an API server in AdonisJs, it comes pre-configured with.
+- [Front-end application](https://github.com/dotdott/todo-front)
 
-1. Bodyparser
-2. Authentication
-3. CORS
-4. Lucid ORM
-5. Migrations and seeds
+<h2>About it so far</h2>
+- Back end application of my frontend todo app, that handles storaging data, handling all pre-set rules to create an account/login ++ to-dos.
 
-## Setup
+<h2>Techs</h2>
 
-Use the adonis command to install the blueprint
-
-```bash
-adonis new yardstick --api-only
-```
-
-or manually clone the repo and then run `npm install`.
-
-
-### Migrations
-
-Run the following command to run startup migrations.
-
-```js
-adonis migration:run
-```
+- AdonisJS
+- mySQL
